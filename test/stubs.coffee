@@ -28,22 +28,22 @@ beforeEach ->
     name: 'Example Team'
   # Slack client
   @stubs.client =
-    getUserByID: (id) =>
+    getUserById: (id) =>
       for user in @stubs.client.users
         return user if user.id is id
     getUserByName: (name) =>
       for user in @stubs.client.users
         return user if user.name is name
-    getChannelByID: (id) =>
+    getChannelById: (id) =>
       @stubs.channel if @stubs.channel.id == id
-    getChannelGroupOrDMByID: (id) =>
+    getChannelGroupOrDMById: (id) =>
       @stubs.channel if @stubs.channel.id == id
     getChannelGroupOrDMByName: (name) =>
       return @stubs.channel if @stubs.channel.name == name
       for dm in @stubs.client.dms
         return dm if dm.name is name
     openDM: (user_id, callback) =>
-      user = @stubs.client.getUserByID user_id
+      user = @stubs.client.getUserById user_id
       @stubs.client.dms.push {
         name: user.name,
         id: 'D1234',
