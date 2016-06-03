@@ -83,6 +83,7 @@ describe 'Receiving a Slack message', ->
     @slackbot.message rawMsg = @makeMessage {
       subtype: 'bot_message'
       username: 'bot'
+      bot_id: @stubs.user.id
       text: 'Hello world'
       attachments: [{
         fallback: 'attachment'

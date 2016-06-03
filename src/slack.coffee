@@ -120,9 +120,19 @@ class SlackBot extends Adapter
 
     channel = @client.getChannelGroupOrDMById msg.channel if msg.channel
 
+    if msg.text
+      rawText = msg.text
+      text = @removeFormatting rawText
+
+    # If there are attachments, and if those attachments have fallback, append them to the message text
+    if msg.attachments
+      if text then text += "\n"
+      for k, attach of msg.attachments
+        if k > 0 then text += "\n"
+        text += attach.fallback
+
     if msg.hidden or (not msg.text and not msg.attachments) or msg.subtype is 'bot_message' or not msg.user or not channel
       # use a raw message, so scripts that care can still see these things
-      console.log(msg.subtype)
 
       if msg.user
         user = @robot.brain.userForId msg.user
@@ -133,16 +143,14 @@ class SlackBot extends Adapter
         user.name = msg.username if msg.username?
       user.room = channel.name if channel
 
-      rawText = msg.text
-      text = @removeFormatting rawText
+
 
       if msg.subtype is 'bot_message'
         @robot.logger.debug "Received bot message: '#{text}' in channel: #{channel?.name}, from: #{user?.name}"
-        @receive new SlackBotMessage user, text, rawText, msg
+        return @receive new SlackBotMessage user, text, rawText, msg
       else
         @robot.logger.debug "Received raw message (subtype: #{msg.subtype})"
-        @receive new SlackRawMessage user, text, rawText, msg
-      return
+        return @receive new SlackRawMessage user, text, rawText, msg
 
     # Process the user into a full hubot user
     user = @robot.brain.userForId msg.user
@@ -155,26 +163,15 @@ class SlackBot extends Adapter
 
     else if msg.subtype is 'channel_leave' or msg.subtype is 'group_leave'
       @robot.logger.debug "#{user.name} has left #{channel.name}"
-      @receive new LeaveMessage user
+      return @receive new LeaveMessage user
 
     else if msg.subtype is 'channel_topic' or msg.subtype is 'group_topic'
       @robot.logger.debug "#{user.name} set the topic in #{channel.name} to #{msg.topic}"
-      @receive new TopicMessage user, msg.topic, msg.ts
+      return @receive new TopicMessage user, msg.topic, msg.ts
 
     else
-      # Build message text to respond to, including all attachments
-      rawText = msg.text
-      text = @removeFormatting rawText
-
 
       @robot.logger.debug "Received message: '#{text}' in channel: #{channel.name}, from: #{user.name}"
-
-      # If there are attachments, and if those attachments have fallback, append them to the message text
-      if msg.attachments
-        if text then text += "\n"
-        for k, attach of msg.attachments
-          if k > 0 then text += "\n"
-          text += attach.fallback
 
       # If this is a DM, pretend it was addressed to us
       if msg.channel[0] == 'D'
@@ -295,7 +292,6 @@ class SlackBot extends Adapter
     channel.setTopic strings.join "\n"
 
   customMessage: (data) =>
-    console.log("WAT")
     channelName = if data.channel
       data.channel
     else if data.message.envelope
