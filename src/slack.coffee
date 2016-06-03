@@ -122,6 +122,7 @@ class SlackBot extends Adapter
 
     if msg.hidden or (not msg.text and not msg.attachments) or msg.subtype is 'bot_message' or not msg.user or not channel
       # use a raw message, so scripts that care can still see these things
+      console.log(msg.subtype)
 
       if msg.user
         user = @robot.brain.userForId msg.user
@@ -167,6 +168,13 @@ class SlackBot extends Adapter
 
 
       @robot.logger.debug "Received message: '#{text}' in channel: #{channel.name}, from: #{user.name}"
+
+      # If there are attachments, and if those attachments have fallback, append them to the message text
+      if msg.attachments
+        if text then text += "\n"
+        for k, attach of msg.attachments
+          if k > 0 then text += "\n"
+          text += attach.fallback
 
       # If this is a DM, pretend it was addressed to us
       if msg.channel[0] == 'D'
@@ -287,7 +295,7 @@ class SlackBot extends Adapter
     channel.setTopic strings.join "\n"
 
   customMessage: (data) =>
-
+    console.log("WAT")
     channelName = if data.channel
       data.channel
     else if data.message.envelope
