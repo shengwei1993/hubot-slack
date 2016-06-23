@@ -1,0 +1,21 @@
+{
+  "name": "hubot-slack",
+  "scripts": {
+  },
+  "env": {
+    "HUBOT_SLACK_TOKEN=xoxb-53532625540-kx5Qe8PCacAUv9ZLLgPs5ODo": "xoxb-53532625540-kx5Qe8PCacAUv9ZLLgPs5ODo"
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "addons": [
+
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}
